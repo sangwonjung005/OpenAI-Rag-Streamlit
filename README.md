@@ -1,34 +1,28 @@
-# OpenAI PDF RAG 데모
+# AI PDF Assistant
 
-이 예제는 Streamlit을 이용하여 한 개 이상의 PDF 문서를 업로드하고, 문서 내용
-을 기반으로 질문에 답하는 간단한 RAG(Retrieval Augmented Generation) 웹앱입니다.
+## 🚀 빠른 시작
 
-## 사용 방법
+### 방법 1: 더블클릭으로 시작
+1. `quick_start.bat` 파일을 더블클릭
+2. 브라우저가 자동으로 열립니다: http://localhost:8506
 
-1. 필요한 패키지 설치
-   ```bash
+### 방법 2: 수동 시작
+```bash
+cd C:\openai_pdf_rag
+C:\Users\sangw\miniconda3\envs\rag_env\Scripts\streamlit.exe run app.py --server.port 8506
+```
 
-   pip install streamlit openai PyPDF2 numpy pandas fpdf
-   ```
-   OpenAI API 키는 `OPENAI_API_KEY` 환경 변수 또는 `nocommit_key.txt` 파일을 통해
-   설정할 수 있습니다.
+## 📋 기능
+- ✅ PDF 업로드 및 분석
+- ✅ GPT-3.5와 GPT-4o 답변 비교
+- ✅ 자동 모델 선택
+- ✅ 답변 품질 개선
+- ✅ 아름다운 UI/UX
 
-2. 앱 실행
-   ```bash
-   streamlit run app.py
-   ```
+## 🔧 문제 해결
+- 앱이 안 열리면: `taskkill /F /IM streamlit.exe` 실행 후 다시 시작
+- 노트북 재시작 후: `quick_start.bat` 더블클릭
 
-앱 상단에는 시스템에 설치된 GPU와 사용 중인 AI 모델(gpt-3.5-turbo)이 표시됩니다.
-또한 질문 입력란 위에 가로줄을 넣어 영역을 구분합니다.
-
-질문을 입력하면 첫 번째 영역에 기본 답변이 표시됩니다.
-
-"답변 모드"를 "PDF 사용"으로 설정하면 두 번째 영역에 업로드한 여러 PDF
-문서를 조합한 답변이 표시됩니다. 세 번째 영역에는 모든 PDF에서 추출한
-원본 텍스트가 그대로 출력됩니다.
-
-추가 기능
-- 최근 100개까지의 질문과 답변을 메모리에 저장합니다.
-- 답변 생성에 걸린 시간이 표시됩니다.
-- 이전 질문과 답변을 선택해서 다시 볼 수 있는 드롭다운 메뉴가 제공됩니다.
-- 저장된 모든 질문과 답변을 PDF 또는 엑셀 파일로 다운로드할 수 있습니다.
+## 📝 참고사항
+- API 키는 `nocommit_key.txt` 파일에 저장
+- 앱은 `http://localhost:8506`에서 실행

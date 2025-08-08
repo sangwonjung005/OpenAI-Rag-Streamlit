@@ -1,0 +1,11 @@
+streamlit
+openai
+langchain
+pypdf
+numpy
+pandas
+fpdf
+PyPDF2
+requests
+beautifulsoup4
+aiohttp

@@ -1,1 +1,39 @@
+# API 키 파일
 nocommit_key.txt
+*.key
+*.pem
+
+# 환경 변수 파일
+.env
+.env.local
+.env.production
+
+# Python 캐시
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 가상환경
+venv/
+env/
+.venv/
+
+# IDE 파일
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 로그 파일
+*.log
+
+# 임시 파일
+*.tmp
+*.temp
+
+# 시스템 파일
+.DS_Store
+Thumbs.db
+
+# Streamlit 캐시
+.streamlit/
