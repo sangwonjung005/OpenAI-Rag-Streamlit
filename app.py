@@ -188,6 +188,7 @@ st.markdown("""
     .upload-card:hover {
         transform: translateY(-8px) scale(1.02);
         box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        border-color: rgba(102, 126, 234, 0.5);
     }
     
     .upload-card:hover::before {
@@ -204,7 +205,7 @@ st.markdown("""
     }
     
     .answer-card {
-        background: #1a1a1a;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
         color: #ffffff;
         padding: 2rem;
         border-radius: 15px;
@@ -212,6 +213,23 @@ st.markdown("""
         margin: 1rem 0;
         border-left: 4px solid #28a745;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .answer-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(40, 167, 69, 0.1), transparent);
+        transition: left 0.6s;
+    }
+    
+    .answer-card:hover::before {
+        left: 100%;
     }
     
     .answer-card:hover {
@@ -235,7 +253,7 @@ st.markdown("""
     }
     
     .improved-card {
-        background: #3a3a3a;
+        background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%);
         color: #ffffff;
         padding: 2rem;
         border-radius: 15px;
@@ -243,6 +261,23 @@ st.markdown("""
         margin: 1rem 0;
         border-left: 4px solid #ffc107;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .improved-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 193, 7, 0.1), transparent);
+        transition: left 0.6s;
+    }
+    
+    .improved-card:hover::before {
+        left: 100%;
     }
     
     .improved-card:hover {
@@ -1362,7 +1397,7 @@ with st.container():
                         <br><small style="opacity: 0.7;">{timestamp}</small>
                     </div>
                     """, unsafe_allow_html=True)
-                else:
+            else:
                     st.markdown(f"""
                     <div style="
                         background: #2d2d2d;
