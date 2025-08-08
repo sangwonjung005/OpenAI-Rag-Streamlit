@@ -1258,8 +1258,8 @@ with col1:
                             progress_percent = (i + len(batch_chunks)) / len(chunks) * 100
                             progress_text = f"청크 {i + len(batch_chunks)}/{len(chunks)} 처리 중... ({progress_percent:.1f}%)"
                             
-                            # 5% 단위로 업데이트 (더 자주 업데이트)
-                            if (i + len(batch_chunks)) % max(1, len(chunks) // 20) == 0 or i + len(batch_chunks) >= len(chunks):
+                            # 10% 단위로 업데이트 (빈도 줄임)
+                            if (i + len(batch_chunks)) % max(1, len(chunks) // 10) == 0 or i + len(batch_chunks) >= len(chunks):
                                 st.markdown(f"""
                                 <script>
                                     document.getElementById('progress-bar').style.width = '{progress_percent}%';
