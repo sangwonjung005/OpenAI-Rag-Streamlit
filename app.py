@@ -141,6 +141,26 @@ st.markdown("""
         75% { transform: translate(-5px, 10px) scale(1.03); }
     }
     
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.3); }
+        50% { box-shadow: 0 0 30px rgba(102, 126, 234, 0.5); }
+    }
+    
+    @keyframes slideInRight {
+        0% { transform: translateX(100%); opacity: 0; }
+        100% { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideInLeft {
+        0% { transform: translateX(-100%); opacity: 0; }
+        100% { transform: translateX(0); opacity: 1; }
+    }
+    
     /* 사이드바 다크 테마 */
     .css-1d391kg, .css-1lcbmhc, .css-1v0mbdj {
         background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%);
@@ -327,6 +347,30 @@ st.markdown("""
         display: inline-block;
         padding: 0.5rem 1rem;
         border-radius: 25px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .model-badge::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .model-badge:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+    
+    .model-badge:hover::before {
+        left: 100%;
+    }
         font-size: 0.8rem;
         font-weight: bold;
         margin-left: 0.5rem;
@@ -451,6 +495,17 @@ st.markdown("""
         box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
         background: rgba(45, 45, 45, 0.9);
         transform: scale(1.02);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .stTextInput > div > div > input:hover {
+        border-color: rgba(102, 126, 234, 0.5);
+        background: rgba(45, 45, 45, 0.85);
+        transform: scale(1.01);
+    }
+    
+    .stTextInput > div > div > input {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .stTextInput > div > div > input::placeholder {
@@ -518,6 +573,16 @@ st.markdown("""
     }
     
     .stButton > button:active {
+        transform: translateY(1px) scale(0.98);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    
+    .stButton > button:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+    }
+    
+    .stButton > button:active {
         transform: translateY(-1px) scale(1.02);
     }
     
@@ -581,6 +646,22 @@ st.markdown("""
         font-weight: 700;
         margin: 0.3rem 0;
         text-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        animation: countUp 2s ease-out;
+    }
+    
+    @keyframes countUp {
+        0% { 
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        50% { 
+            opacity: 0.5;
+            transform: translateY(10px);
+        }
+        100% { 
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     
     .metric-card h4 {
@@ -1551,7 +1632,7 @@ with st.container():
         # 대화 기록 접기/펴기 토글
         with st.expander(f"📝 대화 기록 ({len(st.session_state.conversation_history)}개 메시지)", expanded=False):
             for i, (role, message, timestamp) in enumerate(st.session_state.conversation_history):
-                if role == "user":
+                                if role == "user":
                     st.markdown(f"""
                     <div style="
                         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -1560,20 +1641,26 @@ with st.container():
                         margin: 0.5rem 0;
                         color: white;
                         text-align: right;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                        transition: all 0.3s ease;
+                        animation: slideInRight 0.5s ease;
                     ">
                         <strong>👤 사용자:</strong> {message}
                         <br><small style="opacity: 0.7;">{timestamp}</small>
                     </div>
                     """, unsafe_allow_html=True)
-            else:
+                else:
                     st.markdown(f"""
                     <div style="
-                        background: #2d2d2d;
+                        background: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%);
                         padding: 1rem;
                         border-radius: 15px;
                         margin: 0.5rem 0;
                         color: white;
                         border-left: 4px solid #667eea;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                        transition: all 0.3s ease;
+                        animation: slideInLeft 0.5s ease;
                     ">
                         <strong>🤖 AI:</strong> {message}
                         <br><small style="opacity: 0.7;">{timestamp}</small>
