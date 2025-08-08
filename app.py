@@ -269,22 +269,7 @@ st.markdown("""
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     
-    .improved-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-    }
-    
-    .improved-card h4 {
-        color: #333;
-        margin-bottom: 1rem;
-        font-weight: 600;
-    }
-    
-    .improved-card p {
-        color: #333;
-        line-height: 1.6;
-        margin-bottom: 1rem;
-    }
+
     
     /* 배지 스타일 - 다크 테마 */
     .quality-badge {
