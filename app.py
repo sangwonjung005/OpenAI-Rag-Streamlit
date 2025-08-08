@@ -1391,7 +1391,7 @@ with st.container():
     # 질문 입력과 음성 입력
     col1, col2 = st.columns([4, 1])
     with col1:
-        question = st.text_input("질문을 입력하세요:", placeholder="무엇이든 질문해보세요! (PDF 내용 또는 일반적인 질문)", use_container_width=True)
+        question = st.text_input("질문을 입력하세요:", placeholder="무엇이든 질문해보세요! (PDF 내용 또는 일반적인 질문)")
     with col2:
         if st.button("🎤 음성 입력", help="음성으로 질문하기 (준비 중)"):
             st.info("🎤 음성 입력 기능은 곧 추가될 예정입니다!")
@@ -1399,15 +1399,15 @@ with st.container():
     # 답변 생성 버튼과 음성 출력
     col1, col2 = st.columns([4, 1])
     with col1:
-        generate_button = st.button("🚀 답변 생성", type="primary", use_container_width=True)
+        generate_button = st.button("🚀 답변 생성", type="primary")
     with col2:
-        if st.button("🔊 음성 출력", help="답변을 음성으로 들기 (준비 중)", use_container_width=True):
+        if st.button("🔊 음성 출력", help="답변을 음성으로 들기 (준비 중)"):
             st.info("🔊 음성 출력 기능은 곧 추가될 예정입니다!")
     
     # 대화 초기화 버튼
     col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
-        if st.button("🗑️ 대화 초기화", help="모든 대화 기록을 지웁니다", use_container_width=True):
+        if st.button("🗑️ 대화 초기화", help="모든 대화 기록을 지웁니다"):
             st.session_state.conversation_history = []
             st.rerun()
     
