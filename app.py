@@ -142,7 +142,7 @@ st.markdown("""
     }
     
     /* 사이드바 다크 테마 */
-    .css-1d391kg {
+    .css-1d391kg, .css-1lcbmhc, .css-1v0mbdj {
         background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%);
         border-right: 2px solid rgba(102, 126, 234, 0.3);
         backdrop-filter: blur(10px);
@@ -406,19 +406,25 @@ st.markdown("""
     }
     
     /* 사이드바 내부 요소들 */
-    .css-1d391kg .stSelectbox > div > div {
+    .css-1d391kg .stSelectbox > div > div,
+    .css-1lcbmhc .stSelectbox > div > div,
+    .css-1v0mbdj .stSelectbox > div > div {
         background: rgba(45, 45, 45, 0.8);
         border: 2px solid rgba(255,255,255,0.2);
         border-radius: 10px;
         transition: all 0.3s ease;
     }
     
-    .css-1d391kg .stSelectbox > div > div:hover {
+    .css-1d391kg .stSelectbox > div > div:hover,
+    .css-1lcbmhc .stSelectbox > div > div:hover,
+    .css-1v0mbdj .stSelectbox > div > div:hover {
         border-color: rgba(102, 126, 234, 0.5);
         background: rgba(45, 45, 45, 0.9);
     }
     
-    .css-1d391kg .stCheckbox > div {
+    .css-1d391kg .stCheckbox > div,
+    .css-1lcbmhc .stCheckbox > div,
+    .css-1v0mbdj .stCheckbox > div {
         background: rgba(45, 45, 45, 0.6);
         border-radius: 8px;
         padding: 0.5rem;
@@ -426,12 +432,16 @@ st.markdown("""
         transition: all 0.3s ease;
     }
     
-    .css-1d391kg .stCheckbox > div:hover {
+    .css-1d391kg .stCheckbox > div:hover,
+    .css-1lcbmhc .stCheckbox > div:hover,
+    .css-1v0mbdj .stCheckbox > div:hover {
         background: rgba(102, 126, 234, 0.1);
         transform: translateX(3px);
     }
     
-    .css-1d391kg .stSlider > div > div > div {
+    .css-1d391kg .stSlider > div > div > div,
+    .css-1lcbmhc .stSlider > div > div > div,
+    .css-1v0mbdj .stSlider > div > div > div {
         background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
         border-radius: 10px;
     }
@@ -448,19 +458,25 @@ st.markdown("""
     }
     
     /* 사이드바 텍스트 스타일 */
-    .css-1d391kg .stMarkdown {
+    .css-1d391kg .stMarkdown,
+    .css-1lcbmhc .stMarkdown,
+    .css-1v0mbdj .stMarkdown {
         color: #ffffff;
         font-weight: 500;
     }
     
-    .css-1d391kg .stMarkdown h3 {
+    .css-1d391kg .stMarkdown h3,
+    .css-1lcbmhc .stMarkdown h3,
+    .css-1v0mbdj .stMarkdown h3 {
         color: #667eea;
         font-weight: 600;
         margin-bottom: 0.5rem;
         font-size: 1.1rem;
     }
     
-    .css-1d391kg .stMarkdown p {
+    .css-1d391kg .stMarkdown p,
+    .css-1lcbmhc .stMarkdown p,
+    .css-1v0mbdj .stMarkdown p {
         color: #d1d5db;
         font-size: 0.9rem;
         margin: 0.3rem 0;
