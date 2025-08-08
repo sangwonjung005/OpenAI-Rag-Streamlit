@@ -1385,10 +1385,13 @@ with st.container():
                 </div>
                 """, unsafe_allow_html=True)
     
+    # AI 모드 선택 (질문 입력 전에 표시)
+    ai_mode = st.checkbox("🤖 일반 AI 모드 (PDF 없이도 질문 가능)", value=False, key="ai_mode_checkbox", help="PDF를 업로드하지 않고도 AI와 대화할 수 있습니다")
+    
     # 질문 입력과 음성 입력
     col1, col2 = st.columns([4, 1])
     with col1:
-        question = st.text_input("질문을 입력하세요:", placeholder="PDF 내용에 대해 질문해보세요! (이전 대화를 참고하여 연속적인 질문이 가능합니다)")
+        question = st.text_input("질문을 입력하세요:", placeholder="무엇이든 질문해보세요! (PDF 내용 또는 일반적인 질문)", use_container_width=True)
     with col2:
         if st.button("🎤 음성 입력", help="음성으로 질문하기 (준비 중)"):
             st.info("🎤 음성 입력 기능은 곧 추가될 예정입니다!")
@@ -1396,20 +1399,19 @@ with st.container():
     # 답변 생성 버튼과 음성 출력
     col1, col2 = st.columns([4, 1])
     with col1:
-        generate_button = st.button("🔍 답변 생성", type="primary")
+        generate_button = st.button("🚀 답변 생성", type="primary", use_container_width=True)
     with col2:
-        if st.button("🔊 음성 출력", help="답변을 음성으로 들기 (준비 중)"):
+        if st.button("🔊 음성 출력", help="답변을 음성으로 들기 (준비 중)", use_container_width=True):
             st.info("🔊 음성 출력 기능은 곧 추가될 예정입니다!")
     
     # 대화 초기화 버튼
-    if st.button("🗑️ 대화 초기화", help="모든 대화 기록을 지웁니다"):
-        st.session_state.conversation_history = []
-        st.rerun()
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col2:
+        if st.button("🗑️ 대화 초기화", help="모든 대화 기록을 지웁니다", use_container_width=True):
+            st.session_state.conversation_history = []
+            st.rerun()
     
     if question and generate_button:
-        # AI 모드 토글 추가 (PDF 없이도 질문 가능)
-        ai_mode = st.checkbox("🤖 일반 AI 모드 (PDF 없이도 질문 가능)", value=False, key="ai_mode_checkbox")
-        
         if not st.session_state.docs and rag_enabled and not ai_mode:
             st.warning("먼저 PDF 파일을 업로드해주세요! 또는 일반 AI 모드를 활성화하세요.")
         else:
