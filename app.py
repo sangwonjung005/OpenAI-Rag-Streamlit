@@ -437,10 +437,10 @@ st.markdown("""
     .metric-card {
         background: linear-gradient(135deg, rgba(45, 45, 45, 0.9) 0%, rgba(60, 60, 60, 0.9) 100%);
         color: #ffffff;
-        padding: 2rem;
-        border-radius: 20px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-        margin: 1rem 0;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+        margin: 0.5rem 0;
         text-align: center;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         backdrop-filter: blur(15px);
@@ -474,9 +474,9 @@ st.markdown("""
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        font-size: 2.5rem;
+        font-size: 2rem;
         font-weight: 700;
-        margin: 0.5rem 0;
+        margin: 0.3rem 0;
         text-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
     }
     
