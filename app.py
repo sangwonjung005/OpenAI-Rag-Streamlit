@@ -204,14 +204,15 @@ st.markdown("""
     }
     
     .answer-card {
-        background: #2d2d2d;
+        background: linear-gradient(135deg, #3a3a3a 0%, #2d2d2d 100%);
         color: #ffffff;
-        padding: 1.5rem;
+        padding: 2rem;
         border-radius: 15px;
         box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         margin: 1rem 0;
         border-left: 4px solid #28a745;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        backdrop-filter: blur(10px);
     }
     
     .answer-card:hover {
@@ -226,20 +227,23 @@ st.markdown("""
     }
     
     .answer-card p {
-        color: #d1d5db;
-        line-height: 1.6;
+        color: #ffffff;
+        line-height: 1.8;
         margin-bottom: 1rem;
+        font-size: 1rem;
+        text-align: left;
     }
     
     .improved-card {
-        background: #2d2d2d;
+        background: linear-gradient(135deg, #3a3a3a 0%, #2d2d2d 100%);
         color: #ffffff;
-        padding: 1.5rem;
+        padding: 2rem;
         border-radius: 15px;
         box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         margin: 1rem 0;
         border-left: 4px solid #ffc107;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        backdrop-filter: blur(10px);
     }
     
     .improved-card:hover {
@@ -254,9 +258,11 @@ st.markdown("""
     }
     
     .improved-card p {
-        color: #d1d5db;
-        line-height: 1.6;
+        color: #ffffff;
+        line-height: 1.8;
         margin-bottom: 1rem;
+        font-size: 1rem;
+        text-align: left;
     }
         color: #333;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -1353,37 +1359,37 @@ with st.container():
     
     # 대화 표시 영역
     if st.session_state.conversation_history:
-        st.markdown('<div class="section-header">📝 대화 기록</div>', unsafe_allow_html=True)
-        
-        for i, (role, message, timestamp) in enumerate(st.session_state.conversation_history):
-            if role == "user":
-                st.markdown(f"""
-                <div style="
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    padding: 1rem;
-                    border-radius: 15px;
-                    margin: 0.5rem 0;
-                    color: white;
-                    text-align: right;
-                ">
-                    <strong>👤 사용자:</strong> {message}
-                    <br><small style="opacity: 0.7;">{timestamp}</small>
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                <div style="
-                    background: #2d2d2d;
-                    padding: 1rem;
-                    border-radius: 15px;
-                    margin: 0.5rem 0;
-                    color: white;
-                    border-left: 4px solid #667eea;
-                ">
-                    <strong>🤖 AI:</strong> {message}
-                    <br><small style="opacity: 0.7;">{timestamp}</small>
-                </div>
-                """, unsafe_allow_html=True)
+        # 대화 기록 접기/펴기 토글
+        with st.expander(f"📝 대화 기록 ({len(st.session_state.conversation_history)}개 메시지)", expanded=False):
+            for i, (role, message, timestamp) in enumerate(st.session_state.conversation_history):
+                if role == "user":
+                    st.markdown(f"""
+                    <div style="
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        padding: 1rem;
+                        border-radius: 15px;
+                        margin: 0.5rem 0;
+                        color: white;
+                        text-align: right;
+                    ">
+                        <strong>👤 사용자:</strong> {message}
+                        <br><small style="opacity: 0.7;">{timestamp}</small>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown(f"""
+                    <div style="
+                        background: #2d2d2d;
+                        padding: 1rem;
+                        border-radius: 15px;
+                        margin: 0.5rem 0;
+                        color: white;
+                        border-left: 4px solid #667eea;
+                    ">
+                        <strong>🤖 AI:</strong> {message}
+                        <br><small style="opacity: 0.7;">{timestamp}</small>
+                    </div>
+                    """, unsafe_allow_html=True)
     
     # AI 모드 선택 (질문 입력 전에 표시)
     ai_mode = st.checkbox("🤖 일반 AI 모드 (PDF 없이도 질문 가능)", value=False, key="ai_mode_checkbox", help="PDF를 업로드하지 않고도 AI와 대화할 수 있습니다")
