@@ -227,9 +227,9 @@ st.markdown("""
     
     .answer-card p {
         color: #ffffff;
-        line-height: 1.8;
+        line-height: 1.6;
         margin-bottom: 1rem;
-        font-size: 1.1rem;
+        font-size: 1rem;
         text-align: left;
         font-weight: 400;
     }
@@ -253,17 +253,17 @@ st.markdown("""
     .improved-card h4 {
         color: #ffeb3b;
         margin-bottom: 1rem;
-        font-weight: 700;
-        font-size: 1.4rem;
+        font-weight: 600;
+        font-size: 1.1rem;
     }
     
     .improved-card p {
         color: #ffffff;
-        line-height: 1.8;
+        line-height: 1.6;
         margin-bottom: 1rem;
-        font-size: 1.3rem;
+        font-size: 1rem;
         text-align: left;
-        font-weight: 600;
+        font-weight: 400;
     }
         color: #333;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -1492,7 +1492,7 @@ with st.container():
                         <h4>🤖 GPT-3.5 답변 (1단계)</h4>
                         <p>{improved_gpt35_answer}</p>
                         <div class="quality-badge quality-{gpt35_quality['level']}">
-                            품질 점수: {gpt35_quality['score']}/100
+                            {gpt35_quality['score']}/100
                         </div>
                         <div class="model-badge model-gpt35">
                             GPT-3.5 Turbo
@@ -1536,7 +1536,7 @@ with st.container():
                         <h4>🚀 GPT-4o 답변 (2단계)</h4>
                         <p>{improved_gpt4o_answer}</p>
                         <div class="quality-badge quality-{gpt4o_quality['level']}">
-                            품질 점수: {gpt4o_quality['score']}/100
+                            {gpt4o_quality['score']}/100
                         </div>
                         <div class="model-badge model-gpt4o">
                             GPT-4o
@@ -1589,9 +1589,9 @@ with st.container():
                         <div class="improved-card">
                             <h4>✨ 개선된 답변 (3단계)</h4>
                             <p>{improved_final_answer}</p>
-                            <div class="quality-badge quality-{improved_quality['level']}">
-                                개선된 품질 점수: {improved_quality['score']}/100
-                            </div>
+                                                    <div class="quality-badge quality-{improved_quality['level']}">
+                            {improved_quality['score']}/100
+                        </div>
                             <div class="model-badge model-gpt4o">
                                 GPT-4o (개선)
                             </div>
