@@ -204,7 +204,7 @@ st.markdown("""
     }
     
     .answer-card {
-        background: linear-gradient(135deg, #3a3a3a 0%, #2d2d2d 100%);
+        background: #1a1a1a;
         color: #ffffff;
         padding: 2rem;
         border-radius: 15px;
@@ -212,7 +212,6 @@ st.markdown("""
         margin: 1rem 0;
         border-left: 4px solid #28a745;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        backdrop-filter: blur(10px);
     }
     
     .answer-card:hover {
@@ -230,12 +229,13 @@ st.markdown("""
         color: #ffffff;
         line-height: 1.8;
         margin-bottom: 1rem;
-        font-size: 1rem;
+        font-size: 1.1rem;
         text-align: left;
+        font-weight: 400;
     }
     
     .improved-card {
-        background: linear-gradient(135deg, #3a3a3a 0%, #2d2d2d 100%);
+        background: #1a1a1a;
         color: #ffffff;
         padding: 2rem;
         border-radius: 15px;
@@ -243,7 +243,6 @@ st.markdown("""
         margin: 1rem 0;
         border-left: 4px solid #ffc107;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        backdrop-filter: blur(10px);
     }
     
     .improved-card:hover {
@@ -261,8 +260,9 @@ st.markdown("""
         color: #ffffff;
         line-height: 1.8;
         margin-bottom: 1rem;
-        font-size: 1rem;
+        font-size: 1.1rem;
         text-align: left;
+        font-weight: 400;
     }
         color: #333;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
