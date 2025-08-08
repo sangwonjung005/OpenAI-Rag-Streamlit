@@ -1491,7 +1491,7 @@ with st.container():
                     <div class="answer-card">
                         <h4>🤖 GPT-3.5 답변 (1단계)</h4>
                         <p>{improved_gpt35_answer}</p>
-                        <div class="quality-badge quality-{gpt35_quality['level']}">
+                        <div class="model-badge quality-{gpt35_quality['level']}">
                             {gpt35_quality['score']}/100
                         </div>
                         <div class="model-badge model-gpt35">
@@ -1535,7 +1535,7 @@ with st.container():
                     <div class="answer-card">
                         <h4>🚀 GPT-4o 답변 (2단계)</h4>
                         <p>{improved_gpt4o_answer}</p>
-                        <div class="quality-badge quality-{gpt4o_quality['level']}">
+                        <div class="model-badge quality-{gpt4o_quality['level']}">
                             {gpt4o_quality['score']}/100
                         </div>
                         <div class="model-badge model-gpt4o">
@@ -1589,7 +1589,7 @@ with st.container():
                         <div class="improved-card">
                             <h4>✨ 개선된 답변 (3단계)</h4>
                             <p>{improved_final_answer}</p>
-                                                    <div class="quality-badge quality-{improved_quality['level']}">
+                                                    <div class="model-badge quality-{improved_quality['level']}">
                             {improved_quality['score']}/100
                         </div>
                             <div class="model-badge model-gpt4o">
