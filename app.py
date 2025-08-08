@@ -1453,22 +1453,22 @@ with col1:
                             
                             # 10% 단위로 업데이트 (빈도 줄임)
                             if (i + len(batch_chunks)) % max(1, len(chunks) // 10) == 0 or i + len(batch_chunks) >= len(chunks):
-                                st.markdown(f"""
-                                <div class="custom-loading">
-                                    <div class="loading-spinner"></div>
-                                    <div class="loading-text">📄 PDF 분석중...</div>
-                                    <div class="loading-progress">
-                                        <div class="loading-progress-bar" style="width: {progress_percent}%"></div>
-                                    </div>
-                                    <div class="loading-steps">
-                                        <div class="loading-step {'completed' if progress_percent > 20 else 'active' if progress_percent > 0 else ''}">1️⃣ 텍스트 추출</div>
-                                        <div class="loading-step {'completed' if progress_percent > 40 else 'active' if progress_percent > 40 else ''}">2️⃣ 청크 분할</div>
-                                        <div class="loading-step {'completed' if progress_percent > 60 else 'active' if progress_percent > 60 else ''}">3️⃣ 임베딩 생성</div>
-                                        <div class="loading-step {'completed' if progress_percent > 80 else 'active' if progress_percent > 80 else ''}">4️⃣ 벡터 저장</div>
-                                    </div>
-                                    <div style="color: #d1d5db; font-size: 0.9rem;">{progress_text}</div>
+                                                            st.markdown(f"""
+                            <div class="custom-loading" style="background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(129, 199, 132, 0.1) 100%); border: 1px solid rgba(76, 175, 80, 0.3);">
+                                <div class="loading-spinner" style="border-color: rgba(76, 175, 80, 0.3); border-top-color: #4caf50;"></div>
+                                <div class="loading-text" style="color: #4caf50;">📄 PDF 처리중...</div>
+                                <div class="loading-progress">
+                                    <div class="loading-progress-bar" style="width: {progress_percent}%; background: linear-gradient(90deg, #4caf50 0%, #66bb6a 100%);"></div>
                                 </div>
-                                """, unsafe_allow_html=True)
+                                <div class="loading-steps">
+                                    <div class="loading-step {'completed' if progress_percent > 20 else 'active' if progress_percent > 0 else ''}" style="background: rgba(76, 175, 80, 0.2);">1️⃣ 텍스트 추출</div>
+                                    <div class="loading-step {'completed' if progress_percent > 40 else 'active' if progress_percent > 20 else ''}" style="background: rgba(76, 175, 80, 0.2);">2️⃣ 청크 분할</div>
+                                    <div class="loading-step {'completed' if progress_percent > 60 else 'active' if progress_percent > 40 else ''}" style="background: rgba(76, 175, 80, 0.2);">3️⃣ 임베딩 생성</div>
+                                    <div class="loading-step {'completed' if progress_percent > 80 else 'active' if progress_percent > 60 else ''}" style="background: rgba(76, 175, 80, 0.2);">4️⃣ 벡터 저장</div>
+                                </div>
+                                <div style="color: #d1d5db; font-size: 0.9rem;">{progress_text}</div>
+                            </div>
+                            """, unsafe_allow_html=True)
                         
                         st.session_state.docs = chunks
                         st.session_state.embs = embeddings
@@ -1613,14 +1613,14 @@ with st.container():
             # 세련된 답변 생성 로딩
             with st.container():
                 st.markdown("""
-                <div class="custom-loading">
-                    <div class="loading-spinner"></div>
-                    <div class="loading-text">🤖 AI 답변 생성중...</div>
+                <div class="custom-loading" style="background: linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(186, 104, 200, 0.1) 100%); border: 1px solid rgba(156, 39, 176, 0.3);">
+                    <div class="loading-spinner" style="border-color: rgba(156, 39, 176, 0.3); border-top-color: #9c27b0;"></div>
+                    <div class="loading-text" style="color: #9c27b0;">🤖 AI 답변 생성중...</div>
                     <div class="loading-steps">
-                        <div class="loading-step active">1️⃣ 컨텍스트 분석</div>
-                        <div class="loading-step">2️⃣ GPT-3.5 답변</div>
-                        <div class="loading-step">3️⃣ GPT-4o 개선</div>
-                        <div class="loading-step">4️⃣ 최종 완성</div>
+                        <div class="loading-step active" style="background: rgba(156, 39, 176, 0.2);">1️⃣ 컨텍스트 분석</div>
+                        <div class="loading-step" style="background: rgba(156, 39, 176, 0.2);">2️⃣ GPT-3.5 답변</div>
+                        <div class="loading-step" style="background: rgba(156, 39, 176, 0.2);">3️⃣ GPT-4o 개선</div>
+                        <div class="loading-step" style="background: rgba(156, 39, 176, 0.2);">4️⃣ 최종 완성</div>
                     </div>
                     <div style="color: #d1d5db; font-size: 0.9rem;">질문을 분석하고 최적의 답변을 찾고 있습니다</div>
                 </div>
@@ -1654,7 +1654,7 @@ with st.container():
                     st.markdown("""
                     <div class="custom-loading" style="background: linear-gradient(135deg, rgba(21, 101, 192, 0.1) 0%, rgba(30, 136, 229, 0.1) 100%); border: 1px solid rgba(21, 101, 192, 0.3);">
                         <div class="loading-spinner" style="border-color: rgba(21, 101, 192, 0.3); border-top-color: #1565c0;"></div>
-                        <div class="loading-text" style="color: #1565c0;">🤖 GPT-3.5 분석중...</div>
+                        <div class="loading-text" style="color: #1565c0;">🤖 GPT-3.5 답변 생성중...</div>
                         <div class="loading-steps">
                             <div class="loading-step active" style="background: rgba(21, 101, 192, 0.2);">1️⃣ 질문 분석</div>
                             <div class="loading-step" style="background: rgba(21, 101, 192, 0.2);">2️⃣ 컨텍스트 검색</div>
