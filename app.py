@@ -633,6 +633,96 @@ st.markdown("""
         100% { transform: rotate(360deg); }
     }
     
+    /* 커스텀 로딩 애니메이션 */
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(1.05); }
+    }
+    
+    @keyframes slideIn {
+        0% { transform: translateX(-100%); opacity: 0; }
+        100% { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes fadeInUp {
+        0% { transform: translateY(20px); opacity: 0; }
+        100% { transform: translateY(0); opacity: 1; }
+    }
+    
+    /* 커스텀 로딩 컴포넌트 */
+    .custom-loading {
+        background: linear-gradient(135deg, rgba(45, 45, 45, 0.9) 0%, rgba(60, 60, 60, 0.9) 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 1rem 0;
+        text-align: center;
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        animation: fadeInUp 0.5s ease;
+    }
+    
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(102, 126, 234, 0.3);
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite, pulse 2s ease-in-out infinite;
+        margin: 0 auto 1rem auto;
+    }
+    
+    .loading-text {
+        color: #ffffff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    .loading-progress {
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        height: 8px;
+        margin: 1rem 0;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .loading-progress-bar {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        height: 100%;
+        border-radius: 10px;
+        animation: slideIn 0.5s ease;
+        transition: width 0.3s ease;
+    }
+    
+    .loading-steps {
+        display: flex;
+        justify-content: space-around;
+        margin: 1rem 0;
+        flex-wrap: wrap;
+    }
+    
+    .loading-step {
+        background: rgba(102, 126, 234, 0.2);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        margin: 0.25rem;
+        font-size: 0.9rem;
+        color: #ffffff;
+        animation: fadeInUp 0.5s ease;
+        transition: all 0.3s ease;
+    }
+    
+    .loading-step.active {
+        background: rgba(102, 126, 234, 0.6);
+        transform: scale(1.05);
+    }
+    
+    .loading-step.completed {
+        background: rgba(40, 167, 69, 0.6);
+    }
+    
     /* 경고 메시지 스타일 */
     .stAlert {
         border-radius: 10px;
@@ -1364,10 +1454,20 @@ with col1:
                             # 10% 단위로 업데이트 (빈도 줄임)
                             if (i + len(batch_chunks)) % max(1, len(chunks) // 10) == 0 or i + len(batch_chunks) >= len(chunks):
                                 st.markdown(f"""
-                                <script>
-                                    document.getElementById('progress-bar').style.width = '{progress_percent}%';
-                                    document.getElementById('progress-text').textContent = '{progress_text}';
-                                </script>
+                                <div class="custom-loading">
+                                    <div class="loading-spinner"></div>
+                                    <div class="loading-text">📄 PDF 분석중...</div>
+                                    <div class="loading-progress">
+                                        <div class="loading-progress-bar" style="width: {progress_percent}%"></div>
+                                    </div>
+                                    <div class="loading-steps">
+                                        <div class="loading-step {'completed' if progress_percent > 20 else 'active' if progress_percent > 0 else ''}">1️⃣ 텍스트 추출</div>
+                                        <div class="loading-step {'completed' if progress_percent > 40 else 'active' if progress_percent > 40 else ''}">2️⃣ 청크 분할</div>
+                                        <div class="loading-step {'completed' if progress_percent > 60 else 'active' if progress_percent > 60 else ''}">3️⃣ 임베딩 생성</div>
+                                        <div class="loading-step {'completed' if progress_percent > 80 else 'active' if progress_percent > 80 else ''}">4️⃣ 벡터 저장</div>
+                                    </div>
+                                    <div style="color: #d1d5db; font-size: 0.9rem;">{progress_text}</div>
+                                </div>
                                 """, unsafe_allow_html=True)
                         
                         st.session_state.docs = chunks
@@ -1513,26 +1613,16 @@ with st.container():
             # 세련된 답변 생성 로딩
             with st.container():
                 st.markdown("""
-                <div style="
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    padding: 2rem;
-                    border-radius: 15px;
-                    text-align: center;
-                    color: white;
-                    margin: 1rem 0;
-                    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-                ">
-                    <div style="
-                        width: 50px;
-                        height: 50px;
-                        border: 3px solid rgba(255,255,255,0.3);
-                        border-top: 3px solid white;
-                        border-radius: 50%;
-                        animation: spin 1s linear infinite;
-                        margin: 0 auto 1rem auto;
-                    "></div>
-                    <h3>🤖 AI 답변 생성 중...</h3>
-                    <p>질문을 분석하고 최적의 답변을 찾고 있습니다</p>
+                <div class="custom-loading">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">🤖 AI 답변 생성중...</div>
+                    <div class="loading-steps">
+                        <div class="loading-step active">1️⃣ 컨텍스트 분석</div>
+                        <div class="loading-step">2️⃣ GPT-3.5 답변</div>
+                        <div class="loading-step">3️⃣ GPT-4o 개선</div>
+                        <div class="loading-step">4️⃣ 최종 완성</div>
+                    </div>
+                    <div style="color: #d1d5db; font-size: 0.9rem;">질문을 분석하고 최적의 답변을 찾고 있습니다</div>
                 </div>
                 """, unsafe_allow_html=True)
     
@@ -1562,25 +1652,14 @@ with st.container():
                 # 1단계: GPT-3.5 답변
                 with st.container():
                     st.markdown("""
-                    <div style="
-                        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-                        padding: 1.5rem;
-                        border-radius: 15px;
-                        text-align: center;
-                        color: #1565c0;
-                        margin: 1rem 0;
-                        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-                    ">
-                        <div style="
-                            width: 40px;
-                            height: 40px;
-                            border: 3px solid rgba(21, 101, 192, 0.3);
-                            border-top: 3px solid #1565c0;
-                            border-radius: 50%;
-                            animation: spin 1s linear infinite;
-                            margin: 0 auto 0.5rem auto;
-                        "></div>
-                        <p style="margin: 0; font-weight: 600;">🤖 GPT-3.5 분석 중...</p>
+                    <div class="custom-loading" style="background: linear-gradient(135deg, rgba(21, 101, 192, 0.1) 0%, rgba(30, 136, 229, 0.1) 100%); border: 1px solid rgba(21, 101, 192, 0.3);">
+                        <div class="loading-spinner" style="border-color: rgba(21, 101, 192, 0.3); border-top-color: #1565c0;"></div>
+                        <div class="loading-text" style="color: #1565c0;">🤖 GPT-3.5 분석중...</div>
+                        <div class="loading-steps">
+                            <div class="loading-step active" style="background: rgba(21, 101, 192, 0.2);">1️⃣ 질문 분석</div>
+                            <div class="loading-step" style="background: rgba(21, 101, 192, 0.2);">2️⃣ 컨텍스트 검색</div>
+                            <div class="loading-step" style="background: rgba(21, 101, 192, 0.2);">3️⃣ 답변 생성</div>
+                        </div>
                     </div>
                     """, unsafe_allow_html=True)
                 
