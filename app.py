@@ -1632,7 +1632,7 @@ with st.container():
         # 대화 기록 접기/펴기 토글
         with st.expander(f"📝 대화 기록 ({len(st.session_state.conversation_history)}개 메시지)", expanded=False):
             for i, (role, message, timestamp) in enumerate(st.session_state.conversation_history):
-                                if role == "user":
+                if role == "user":
                     st.markdown(f"""
                     <div style="
                         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
