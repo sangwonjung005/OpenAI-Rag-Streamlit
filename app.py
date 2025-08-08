@@ -235,7 +235,7 @@ st.markdown("""
     }
     
     .improved-card {
-        background: #1a1a1a;
+        background: #2a2a2a;
         color: #ffffff;
         padding: 2rem;
         border-radius: 15px;
@@ -251,18 +251,19 @@ st.markdown("""
     }
     
     .improved-card h4 {
-        color: #ffffff;
+        color: #ffc107;
         margin-bottom: 1rem;
-        font-weight: 600;
+        font-weight: 700;
+        font-size: 1.3rem;
     }
     
     .improved-card p {
         color: #ffffff;
         line-height: 1.8;
         margin-bottom: 1rem;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         text-align: left;
-        font-weight: 400;
+        font-weight: 500;
     }
         color: #333;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
