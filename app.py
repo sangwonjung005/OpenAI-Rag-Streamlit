@@ -1037,6 +1037,10 @@ def select_model_automatically(question: str, context_length: int = 0) -> dict:
     except:
         local_server_available = False
     
+    # 서버가 없을 때 사용자에게 알림
+    if not local_server_available and complexity["score"] >= 2:
+        st.info("💡 **팁:** GPT-OSS 서버가 실행되지 않아 API 모델을 사용합니다. 무료 로컬 모델을 원하시면 서버를 설정해주세요.")
+    
     # 모델 선택 로직
     if complexity["score"] >= 5:
         if local_server_available:
@@ -1123,8 +1127,23 @@ with st.sidebar:
         use_gpt4mini = st.checkbox("GPT-4o-mini 사용", value=False)
         use_claude = st.checkbox("Claude 3.5 Sonnet 사용", value=False)
         use_gemini = st.checkbox("Gemini Pro 사용", value=False)
-        use_gpt_oss_20b = st.checkbox("GPT-OSS-20B (로컬) 사용", value=False)
-        use_gpt_oss_120b = st.checkbox("GPT-OSS-120B (로컬) 사용", value=False)
+        
+        # GPT-OSS 서버 상태 확인
+        try:
+            import requests
+            response = requests.get("http://localhost:8000/health", timeout=2)
+            gpt_oss_server_running = response.status_code == 200
+        except:
+            gpt_oss_server_running = False
+        
+        if gpt_oss_server_running:
+            use_gpt_oss_20b = st.checkbox("GPT-OSS-20B (로컬) 사용", value=False)
+            use_gpt_oss_120b = st.checkbox("GPT-OSS-120B (로컬) 사용", value=False)
+        else:
+            st.info("💻 GPT-OSS 서버가 실행되지 않음")
+            use_gpt_oss_20b = st.checkbox("GPT-OSS-20B (로컬) 사용", value=False, disabled=True)
+            use_gpt_oss_120b = st.checkbox("GPT-OSS-120B (로컬) 사용", value=False, disabled=True)
+            st.caption("서버 설정 방법: `pip install vllm && vllm serve gpt-oss-20b --host 0.0.0.0 --port 8000`")
     else:
         use_gpt4 = False
         use_gpt4mini = False
@@ -1327,7 +1346,20 @@ def generate_gpt_oss_answer(question: str, context: str, model: str) -> str:
         )
         return response.json()["response"]
     except requests.exceptions.ConnectionError:
-        return "❌ 로컬 GPT-OSS 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인하세요."
+        return f"""❌ GPT-OSS 서버가 실행되지 않았습니다.
+
+**해결 방법:**
+1. 터미널에서 다음 명령어 실행:
+   ```bash
+   pip install vllm
+   vllm serve gpt-oss-20b --host 0.0.0.0 --port 8000
+   ```
+
+2. 또는 더 간단한 방법:
+   - 사이드바에서 다른 모델 선택 (GPT-3.5, GPT-4o 등)
+   - API 모델들은 서버 설정 없이 바로 사용 가능
+
+**참고:** GPT-OSS는 무료 로컬 모델이지만 서버 설정이 필요합니다."""
     except Exception as e:
         return f"GPT-OSS 모델 호출 오류: {str(e)}"
 
