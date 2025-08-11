@@ -78,6 +78,22 @@ MODELS = {
         "description": "Google의 고성능 모델",
         "best_for": ["다양한 작업", "멀티모달", "실시간 정보"],
         "color": "model-gemini"
+    },
+    "gpt-oss-20b": {
+        "name": "GPT-OSS-20B (로컬)",
+        "description": "o3-mini 수준 성능, 무료 로컬 실행",
+        "best_for": ["일반 분석", "에지 디바이스", "빠른 반복"],
+        "color": "model-gptoss",
+        "local": True,
+        "hardware_required": "16GB RAM"
+    },
+    "gpt-oss-120b": {
+        "name": "GPT-OSS-120B (로컬)",
+        "description": "o4-mini 수준 성능, 무료 로컬 실행",
+        "best_for": ["복잡한 추론", "도구 사용", "고품질 분석"],
+        "color": "model-gptoss",
+        "local": True,
+        "hardware_required": "80GB GPU"
     }
 }
 
@@ -380,6 +396,7 @@ st.markdown("""
     .model-gpt35 { background: linear-gradient(45deg, #1e3a8a, #1e40af); color: #60a5fa; }
     .model-gpt4mini { background: linear-gradient(45deg, #581c87, #6b21a8); color: #c084fc; }
     .model-gpt4o { background: linear-gradient(45deg, #1e4d2b, #166534); color: #4ade80; }
+    .model-gptoss { background: linear-gradient(45deg, #ff6b35, #f7931e); color: #ffffff; }
     
     /* 스마트 선택 박스 - 다크 테마 */
     .smart-selection {
@@ -1012,16 +1029,36 @@ def select_model_automatically(question: str, context_length: int = 0) -> dict:
     elif context_length > 2000:
         complexity["score"] += 1
     
+    # 로컬 서버 상태 확인 (GPT-OSS 사용 가능 여부)
+    try:
+        import requests
+        response = requests.get("http://localhost:8000/health", timeout=2)
+        local_server_available = response.status_code == 200
+    except:
+        local_server_available = False
+    
     # 모델 선택 로직
     if complexity["score"] >= 5:
-        selected_model = "gpt-4o"
-        reason = "복잡한 분석/전략 질문으로 판단됨"
+        if local_server_available:
+            selected_model = "gpt-oss-120b"
+            reason = "복잡한 분석/전략 질문 - 고성능 무료 로컬 모델"
+        else:
+            selected_model = "gpt-4o"
+            reason = "복잡한 분석/전략 질문으로 판단됨"
     elif complexity["score"] >= 2:
-        selected_model = "gpt-4o-mini"
-        reason = "중간 복잡도 질문으로 판단됨"
+        if local_server_available:
+            selected_model = "gpt-oss-20b"
+            reason = "중간 복잡도 질문 - 무료 로컬 모델"
+        else:
+            selected_model = "gpt-4o-mini"
+            reason = "중간 복잡도 질문으로 판단됨"
     else:
-        selected_model = "gpt-3.5-turbo"
-        reason = "기본 질문으로 판단됨"
+        if local_server_available:
+            selected_model = "gpt-oss-20b"
+            reason = "기본 질문 - 무료 로컬 모델"
+        else:
+            selected_model = "gpt-3.5-turbo"
+            reason = "기본 질문으로 판단됨"
     
     return {
         "model": selected_model,
@@ -1086,11 +1123,15 @@ with st.sidebar:
         use_gpt4mini = st.checkbox("GPT-4o-mini 사용", value=False)
         use_claude = st.checkbox("Claude 3.5 Sonnet 사용", value=False)
         use_gemini = st.checkbox("Gemini Pro 사용", value=False)
+        use_gpt_oss_20b = st.checkbox("GPT-OSS-20B (로컬) 사용", value=False)
+        use_gpt_oss_120b = st.checkbox("GPT-OSS-120B (로컬) 사용", value=False)
     else:
         use_gpt4 = False
         use_gpt4mini = False
         use_claude = False
         use_gemini = False
+        use_gpt_oss_20b = False
+        use_gpt_oss_120b = False
     
     st.markdown("---")
     
@@ -1241,7 +1282,10 @@ def generate_answer(question: str, context: str, model: str) -> str:
         else:
             prompt = question
         
-        if model in ["gpt-3.5-turbo", "gpt-4o-mini", "gpt-4o"]:
+        # GPT-OSS 로컬 모델 처리
+        if model.startswith("gpt-oss"):
+            return generate_gpt_oss_answer(question, context, model)
+        elif model in ["gpt-3.5-turbo", "gpt-4o-mini", "gpt-4o"]:
             response = client.chat.completions.create(
                 model=model,
                         messages=[{"role": "user", "content": prompt}],
@@ -1264,6 +1308,28 @@ def generate_answer(question: str, context: str, model: str) -> str:
         
     except Exception as e:
         return f"오류 발생: {str(e)}"
+
+def generate_gpt_oss_answer(question: str, context: str, model: str) -> str:
+    """GPT-OSS 로컬 모델 호출"""
+    try:
+        import requests
+        
+        # 로컬 서버 호출
+        response = requests.post(
+            "http://localhost:8000/generate",
+            json={
+                "prompt": f"Context: {context}\nQuestion: {question}",
+                "model": model,
+                "max_tokens": 1000,
+                "temperature": 0.7
+            },
+            timeout=30
+        )
+        return response.json()["response"]
+    except requests.exceptions.ConnectionError:
+        return "❌ 로컬 GPT-OSS 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인하세요."
+    except Exception as e:
+        return f"GPT-OSS 모델 호출 오류: {str(e)}"
 
 def analyze_sentiment_and_tone(text: str) -> dict:
     """감정 및 톤 분석"""
@@ -1987,6 +2053,90 @@ with st.container():
                                     </div>
                                 </div>
                                 """, unsafe_allow_html=True)
+                    
+                    if use_gpt_oss_20b:
+                        with st.container():
+                            st.markdown("""
+                            <div style="
+                                background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%);
+                                padding: 1.5rem;
+                                border-radius: 15px;
+                                text-align: center;
+                                color: #e65100;
+                                margin: 1rem 0;
+                                box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                            ">
+                                <div style="
+                                    width: 40px;
+                                    height: 40px;
+                                    border: 3px solid rgba(230, 81, 0, 0.3);
+                                    border-top: 3px solid #e65100;
+                                    border-radius: 50%;
+                                    animation: spin 1s linear infinite;
+                                    margin: 0 auto 0.5rem auto;
+                                "></div>
+                                <p style="margin: 0; font-weight: 600;">💻 GPT-OSS-20B 분석 중...</p>
+                            </div>
+                            """, unsafe_allow_html=True)
+                            
+                            gpt_oss_20b_answer = generate_answer(question, context, "gpt-oss-20b")
+                            gpt_oss_20b_quality = analyze_answer_quality(gpt_oss_20b_answer, question)
+                            
+                            with st.container():
+                                st.markdown(f"""
+                                <div class="answer-card">
+                                    <h4>💻 GPT-OSS-20B 답변 (무료 로컬)</h4>
+                                    <p>{gpt_oss_20b_answer}</p>
+                                    <div class="quality-badge quality-{gpt_oss_20b_quality['level']}">
+                                        품질 점수: {gpt_oss_20b_quality['score']}/100
+                                    </div>
+                                    <div class="model-badge model-gptoss">
+                                        GPT-OSS-20B (무료)
+                                    </div>
+                                </div>
+                                """, unsafe_allow_html=True)
+                    
+                    if use_gpt_oss_120b:
+                        with st.container():
+                            st.markdown("""
+                            <div style="
+                                background: linear-gradient(135deg, #e3f2fd 0%, #2196f3 100%);
+                                padding: 1.5rem;
+                                border-radius: 15px;
+                                text-align: center;
+                                color: #1565c0;
+                                margin: 1rem 0;
+                                box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                            ">
+                                <div style="
+                                    width: 40px;
+                                    height: 40px;
+                                    border: 3px solid rgba(21, 101, 192, 0.3);
+                                    border-top: 3px solid #1565c0;
+                                    border-radius: 50%;
+                                    animation: spin 1s linear infinite;
+                                    margin: 0 auto 0.5rem auto;
+                                "></div>
+                                <p style="margin: 0; font-weight: 600;">🚀 GPT-OSS-120B 분석 중...</p>
+                            </div>
+                            """, unsafe_allow_html=True)
+                            
+                            gpt_oss_120b_answer = generate_answer(question, context, "gpt-oss-120b")
+                            gpt_oss_120b_quality = analyze_answer_quality(gpt_oss_120b_answer, question)
+                            
+                            with st.container():
+                                st.markdown(f"""
+                                <div class="answer-card">
+                                    <h4>🚀 GPT-OSS-120B 답변 (고성능 무료)</h4>
+                                    <p>{gpt_oss_120b_answer}</p>
+                                    <div class="quality-badge quality-{gpt_oss_120b_quality['level']}">
+                                        품질 점수: {gpt_oss_120b_quality['score']}/100
+                                    </div>
+                                    <div class="model-badge model-gptoss">
+                                        GPT-OSS-120B (무료)
+                                    </div>
+                                </div>
+                                """, unsafe_allow_html=True)
                 
                 # 계층적 답변 개선 (선택적)
                 improved_answer = None
@@ -2118,6 +2268,10 @@ with st.container():
                     'gpt4mini_quality': gpt4mini_quality['score'] if model_selection_mode == "수동 선택" and use_gpt4mini else None,
                     'gpt4_answer': gpt4_answer if model_selection_mode == "수동 선택" and use_gpt4 else None,
                     'gpt4_quality': gpt4_quality['score'] if model_selection_mode == "수동 선택" and use_gpt4 else None,
+                    'gpt_oss_20b_answer': gpt_oss_20b_answer if model_selection_mode == "수동 선택" and use_gpt_oss_20b else None,
+                    'gpt_oss_20b_quality': gpt_oss_20b_quality['score'] if model_selection_mode == "수동 선택" and use_gpt_oss_20b else None,
+                    'gpt_oss_120b_answer': gpt_oss_120b_answer if model_selection_mode == "수동 선택" and use_gpt_oss_120b else None,
+                    'gpt_oss_120b_quality': gpt_oss_120b_quality['score'] if model_selection_mode == "수동 선택" and use_gpt_oss_120b else None,
                     'timestamp': current_time
                 }
                 st.session_state.history.append(history_entry)
@@ -2170,6 +2324,24 @@ if st.session_state.history:
                 <p>{entry['gpt4_answer']}</p>
                 <div class="quality-badge quality-{'good' if entry['gpt4_quality'] >= 80 else 'medium' if entry['gpt4_quality'] >= 60 else 'bad'}">
                     품질: {entry['gpt4_quality']}/100
+                </div>
+                """, unsafe_allow_html=True)
+            
+            if entry.get('gpt_oss_20b_answer'):
+                st.markdown(f"""
+                <h4>💻 GPT-OSS-20B 답변 (무료 로컬)</h4>
+                <p>{entry['gpt_oss_20b_answer']}</p>
+                <div class="quality-badge quality-{'good' if entry['gpt_oss_20b_quality'] >= 80 else 'medium' if entry['gpt_oss_20b_quality'] >= 60 else 'bad'}">
+                    품질: {entry['gpt_oss_20b_quality']}/100
+                </div>
+                """, unsafe_allow_html=True)
+            
+            if entry.get('gpt_oss_120b_answer'):
+                st.markdown(f"""
+                <h4>🚀 GPT-OSS-120B 답변 (고성능 무료)</h4>
+                <p>{entry['gpt_oss_120b_answer']}</p>
+                <div class="quality-badge quality-{'good' if entry['gpt_oss_120b_quality'] >= 80 else 'medium' if entry['gpt_oss_120b_quality'] >= 60 else 'bad'}">
+                    품질: {entry['gpt_oss_120b_quality']}/100
                 </div>
                 """, unsafe_allow_html=True)
             

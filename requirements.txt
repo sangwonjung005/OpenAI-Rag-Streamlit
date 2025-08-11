@@ -9,3 +9,5 @@ PyPDF2
 requests
 beautifulsoup4
 aiohttp
+anthropic
+google-generativeai
