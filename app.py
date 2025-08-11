@@ -938,7 +938,7 @@ with st.sidebar:
     st.markdown("#### 🤖 선호 모델")
     preferred_model = st.selectbox(
         "선호 모델",
-        ["자동 선택", "GPT-3.5 Turbo", "GPT-4o Mini", "GPT-4o", "Claude 3.5 Sonnet", "Gemini Pro"],
+        ["자동 선택", "GPT-3.5 Turbo", "GPT-4o Mini", "GPT-4o", "GPT-OSS-20B (로컬)", "GPT-OSS-120B (로컬)", "Claude 3.5 Sonnet", "Gemini Pro"],
         index=0,
         key="preferred_model_selectbox"
     )
