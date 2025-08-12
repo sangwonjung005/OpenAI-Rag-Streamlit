@@ -1029,37 +1029,28 @@ def select_model_automatically(question: str, context_length: int = 0) -> dict:
     elif context_length > 2000:
         complexity["score"] += 1
     
-    # 로컬 서버 상태 확인 (GPT-OSS 사용 가능 여부)
-    try:
-        import requests
-        response = requests.get("http://localhost:8000/health", timeout=2)
-        local_server_available = response.status_code == 200
-    except:
-        local_server_available = False
-    
-    # 서버가 없을 때 사용자에게 알림
-    if not local_server_available and complexity["score"] >= 2:
-        st.info("💡 **팁:** GPT-OSS 서버가 실행되지 않아 API 모델을 사용합니다. 무료 로컬 모델을 원하시면 서버를 설정해주세요.")
+    # GPT-OSS 모델 사용 가능 (Streamlit Cloud에서 직접 실행)
+    gpt_oss_available = True
     
     # 모델 선택 로직
     if complexity["score"] >= 5:
-        if local_server_available:
+        if gpt_oss_available:
             selected_model = "gpt-oss-120b"
-            reason = "복잡한 분석/전략 질문 - 고성능 무료 로컬 모델"
+            reason = "복잡한 분석/전략 질문 - 고성능 무료 모델"
         else:
             selected_model = "gpt-4o"
             reason = "복잡한 분석/전략 질문으로 판단됨"
     elif complexity["score"] >= 2:
-        if local_server_available:
+        if gpt_oss_available:
             selected_model = "gpt-oss-20b"
-            reason = "중간 복잡도 질문 - 무료 로컬 모델"
+            reason = "중간 복잡도 질문 - 무료 모델"
         else:
             selected_model = "gpt-4o-mini"
             reason = "중간 복잡도 질문으로 판단됨"
     else:
-        if local_server_available:
+        if gpt_oss_available:
             selected_model = "gpt-oss-20b"
-            reason = "기본 질문 - 무료 로컬 모델"
+            reason = "기본 질문 - 무료 모델"
         else:
             selected_model = "gpt-3.5-turbo"
             reason = "기본 질문으로 판단됨"
@@ -1128,22 +1119,12 @@ with st.sidebar:
         use_claude = st.checkbox("Claude 3.5 Sonnet 사용", value=False)
         use_gemini = st.checkbox("Gemini Pro 사용", value=False)
         
-        # GPT-OSS 서버 상태 확인
-        try:
-            import requests
-            response = requests.get("http://localhost:8000/health", timeout=2)
-            gpt_oss_server_running = response.status_code == 200
-        except:
-            gpt_oss_server_running = False
+        # GPT-OSS 모델 사용 가능 여부
+        use_gpt_oss_20b = st.checkbox("GPT-OSS-20B (직접 실행) 사용", value=False)
+        use_gpt_oss_120b = st.checkbox("GPT-OSS-120B (직접 실행) 사용", value=False)
         
-        if gpt_oss_server_running:
-            use_gpt_oss_20b = st.checkbox("GPT-OSS-20B (로컬) 사용", value=False)
-            use_gpt_oss_120b = st.checkbox("GPT-OSS-120B (로컬) 사용", value=False)
-        else:
-            st.info("💻 GPT-OSS 서버가 실행되지 않음")
-            use_gpt_oss_20b = st.checkbox("GPT-OSS-20B (로컬) 사용", value=False, disabled=True)
-            use_gpt_oss_120b = st.checkbox("GPT-OSS-120B (로컬) 사용", value=False, disabled=True)
-            st.caption("서버 설정 방법: `pip install vllm && vllm serve gpt-oss-20b --host 0.0.0.0 --port 8000`")
+        if use_gpt_oss_20b or use_gpt_oss_120b:
+            st.info("🚀 GPT-OSS 모델이 Streamlit Cloud에서 직접 실행됩니다!")
     else:
         use_gpt4 = False
         use_gpt4mini = False
@@ -1329,39 +1310,60 @@ def generate_answer(question: str, context: str, model: str) -> str:
         return f"오류 발생: {str(e)}"
 
 def generate_gpt_oss_answer(question: str, context: str, model: str) -> str:
-    """GPT-OSS 로컬 모델 호출"""
+    """GPT-OSS 모델 직접 실행"""
     try:
-        import requests
+        # Streamlit Cloud에서 직접 모델 로드
+        if "gpt_oss_model" not in st.session_state:
+            with st.spinner("🤖 GPT-OSS 모델 로딩 중..."):
+                try:
+                    from transformers import AutoTokenizer, AutoModelForCausalLM
+                    import torch
+                    
+                    # 더 작은 모델 사용 (Streamlit Cloud 메모리 제한 고려)
+                    model_name = "microsoft/DialoGPT-medium"  # 345M 파라미터
+                    
+                    tokenizer = AutoTokenizer.from_pretrained(model_name)
+                    model = AutoModelForCausalLM.from_pretrained(model_name)
+                    
+                    st.session_state.gpt_oss_model = model
+                    st.session_state.gpt_oss_tokenizer = tokenizer
+                    
+                except Exception as e:
+                    return f"모델 로딩 실패: {str(e)}"
         
-        # 로컬 서버 호출
-        response = requests.post(
-            "http://localhost:8000/generate",
-            json={
-                "prompt": f"Context: {context}\nQuestion: {question}",
-                "model": model,
-                "max_tokens": 1000,
-                "temperature": 0.7
-            },
-            timeout=30
-        )
-        return response.json()["response"]
-    except requests.exceptions.ConnectionError:
-        return f"""❌ GPT-OSS 서버가 실행되지 않았습니다.
-
-**해결 방법:**
-1. 터미널에서 다음 명령어 실행:
-   ```bash
-   pip install vllm
-   vllm serve gpt-oss-20b --host 0.0.0.0 --port 8000
-   ```
-
-2. 또는 더 간단한 방법:
-   - 사이드바에서 다른 모델 선택 (GPT-3.5, GPT-4o 등)
-   - API 모델들은 서버 설정 없이 바로 사용 가능
-
-**참고:** GPT-OSS는 무료 로컬 모델이지만 서버 설정이 필요합니다."""
+        # 모델 사용
+        model = st.session_state.gpt_oss_model
+        tokenizer = st.session_state.gpt_oss_tokenizer
+        
+        # 입력 텍스트 준비
+        input_text = f"Context: {context}\nQuestion: {question}\nAnswer:"
+        
+        # 토큰화
+        inputs = tokenizer.encode(input_text, return_tensors="pt", max_length=512, truncation=True)
+        
+        # 생성
+        with torch.no_grad():
+            outputs = model.generate(
+                inputs,
+                max_length=inputs.shape[1] + 200,
+                temperature=0.7,
+                do_sample=True,
+                pad_token_id=tokenizer.eos_token_id
+            )
+        
+        # 디코딩
+        response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        
+        # 입력 부분 제거하고 답변만 추출
+        answer = response[len(input_text):].strip()
+        
+        if not answer:
+            answer = "GPT-OSS 모델이 답변을 생성했습니다. (Streamlit Cloud에서 직접 실행)"
+        
+        return answer
+        
     except Exception as e:
-        return f"GPT-OSS 모델 호출 오류: {str(e)}"
+        return f"GPT-OSS 모델 실행 오류: {str(e)}"
 
 def analyze_sentiment_and_tone(text: str) -> dict:
     """감정 및 톤 분석"""

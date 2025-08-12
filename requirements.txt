@@ -11,3 +11,7 @@ beautifulsoup4
 aiohttp
 anthropic
 google-generativeai
+transformers
+torch
+accelerate
+sentencepiece
