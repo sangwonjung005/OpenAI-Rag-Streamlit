@@ -1747,14 +1747,6 @@ st.markdown("""
     <p>텍스트 추출 및 AI 학습을 위한 준비를 하고 있습니다</p>
 </div>
 """, unsafe_allow_html=True)
-                    <div style="
-                        width: 60px;
-                        height: 60px;
-                        border: 4px solid rgba(255,255,255,0.3);
-                        border-top: 4px solid white;
-                        border-radius: 50%;
-                        animation: spin 1s linear infinite;
-                        margin: 0 auto 1rem auto;
                     "></div>
                     <h3>📄 PDF 분석 중...</h3>
                     <p>텍스트 추출 및 AI 학습을 위한 준비를 하고 있습니다</p>
