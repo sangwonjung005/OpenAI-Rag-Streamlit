@@ -1733,7 +1733,7 @@ def main():
         if uploaded_file is not None:
             # 세련된 로딩 컨테이너
             with st.container():
-               st.markdown("""
+st.markdown("""
 <div style="
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: 2rem;
