@@ -1466,13 +1466,14 @@ def generate_gpt_oss_answer(question: str, context: str, model: str) -> str:
     except FileNotFoundError:
         st.error("nocommit_key.txt 파일을 찾을 수 없습니다.")
         return {{}}
-
-*Streamlit Cloud에서 직접 실행된 고성능 GPT-OSS 모델입니다.*"""
-# API 키 로드
+try:
+    # 어떤 코드
+    pass  # 또는 실제 코드
+except Exception as e:
+    # 에러 처리
+    pass
 api_keys = load_api_keys()
 
-        return answer
-        
     except Exception as e:
         return f"GPT-OSS 모델 실행 오류: {str(e)}"
 # OpenAI 클라이언트 설정
