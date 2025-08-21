@@ -1733,16 +1733,20 @@ def main():
         if uploaded_file is not None:
             # 세련된 로딩 컨테이너
             with st.container():
-                st.markdown("""
-                <div style="
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    padding: 2rem;
-                    border-radius: 15px;
-                    text-align: center;
-                    color: white;
-                    margin: 1rem 0;
-                    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-                ">
+               st.markdown("""
+<div style="
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    color: white;
+    margin: 1rem 0;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+">
+    <h3>📄 PDF 분석 중...</h3>
+    <p>텍스트 추출 및 AI 학습을 위한 준비를 하고 있습니다</p>
+</div>
+""", unsafe_allow_html=True)
                     <div style="
                         width: 60px;
                         height: 60px;
