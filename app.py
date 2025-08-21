@@ -1454,9 +1454,10 @@ def generate_gpt_oss_answer(question: str, context: str, model: str) -> str:
 **GPT-OSS 모델의 고급 AI 분석:**
 이 답변은 GPT-OSS 오픈소스 모델의 고급 자연어 처리 및 분석 능력을 활용하여 생성되었습니다. 
 컨텍스트의 의미를 깊이 이해하고, 질문에 대한 포괄적이고 실용적인 답변을 제공합니다.
+
         with open('nocommit_key.txt', 'r', encoding='utf-8') as f:
             lines = f.readlines()
-            keys = {}
+            keys = {{}}  # ← 중괄호 이스케이프
             for line in lines:
                 if '=' in line:
                     key, value = line.strip().split('=', 1)
