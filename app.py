@@ -123,11 +123,8 @@ import os
 
 # 페이지 설정
 st.set_page_config(
-    page_title="AI PDF Assistant",
-    page_icon="🤖",
-    layout="wide"
     page_title="AI PDF Assistant - Fixed GPT-OSS",
-    page_icon="🚀",
+    page_icon="��",
     layout="wide",
     initial_sidebar_state="expanded"
 )
