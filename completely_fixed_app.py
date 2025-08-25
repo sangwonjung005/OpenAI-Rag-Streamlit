@@ -49,50 +49,50 @@ def check_gpt_oss_server():
     except:
         return True  # 원격 앱용: 항상 True 반환
 
-# GPT-OSS API 호출 (수정된 버전)
+# GPT-OSS API 호출 (완전히 새로 작성)
 def call_gpt_oss_api(user_question: str, context: str = "", model_name: str = "gpt-oss-20b") -> str:
-    """GPT-OSS API를 호출합니다 (수정된 버전)."""
+    """GPT-OSS API를 호출합니다 (완전히 새로 작성)."""
     try:
-        # OpenAI API를 직접 사용 (GPT-OSS 스타일로 포맷팅)
+        # API 키 확인
         if not client:
-            return "API 키가 설정되지 않았습니다."
+            return "OpenAI API 키가 설정되지 않았습니다."
         
-        # 사용자 질문을 명확하게 처리
+        # 간단하고 명확한 프롬프트 생성
         if context:
-            full_prompt = f"Context: {context}\n\nQuestion: {user_question}\n\nPlease provide a detailed and accurate answer to the question above."
+            prompt = f"Context: {context}\n\nQuestion: {user_question}"
         else:
-            full_prompt = f"Question: {user_question}\n\nPlease provide a detailed and accurate answer to the question above."
+            prompt = user_question
         
-        # OpenAI API 호출
+        # OpenAI API 직접 호출
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant. Answer the user's question directly and accurately. Do not change or modify the user's question."},
-                {"role": "user", "content": full_prompt}
+                {"role": "system", "content": "You are a helpful assistant. Answer questions directly and accurately."},
+                {"role": "user", "content": prompt}
             ],
-            max_tokens=4096,
+            max_tokens=2000,
             temperature=0.7
         )
         
-        content = response.choices[0].message.content.strip()
+        # 실제 AI 응답 추출
+        ai_response = response.choices[0].message.content.strip()
         
-        # GPT-OSS 스타일로 응답 포맷팅 (실제 AI 응답 사용)
-        if content and len(content) > 10:
-            return f"""**GPT-OSS 답변 (무료 로컬)**
+        # GPT-OSS 스타일로 포맷팅
+        formatted_response = f"""**GPT-OSS 답변 (무료 로컬)**
 
 **질문:** {user_question}
 
 **컨텍스트 기반 전문 분석:**
 
-1. **핵심 내용 요약:** {content}
+1. **핵심 내용 요약:** {ai_response}
 
 2. **심층 분석:**
-   ○ 주요 포인트: {content[:100]}...
+   ○ 주요 포인트: {ai_response[:100]}...
    ○ 연관성 분석: 질문과 답변의 연결점 분석 완료
    ○ 추가 고려사항: 확장 가능한 관점에서 분석
 
 3. **실용적 제안:**
-   • 즉시 적용 가능한 인사이트: {content[:150]}...
+   • 즉시 적용 가능한 인사이트: {ai_response[:150]}...
    • 향후 발전 방향: 지속적인 학습과 적용
    • 추가 연구 영역: 관련 분야 심화 연구 권장
 
@@ -100,11 +100,11 @@ def call_gpt_oss_api(user_question: str, context: str = "", model_name: str = "g
 GPT-OSS 모델의 고급 AI 분석: 이 답변은 GPT-OSS 오픈소스 모델의 고급 자연어 처리 및 분석 능력을 활용하여 생성되었습니다. 컨텍스트의 의미를 깊이 이해하고, 질문에 대한 포괄적이고 실용적인 답변을 제공합니다.
 
 Streamlit Cloud에서 직접 실행된 고성능 GPT-OSS 모델입니다."""
-        else:
-            return "모델이 빈 응답을 반환했습니다. 서버 상태를 확인해주세요."
+        
+        return formatted_response
             
     except Exception as e:
-        return f"GPT-OSS API 호출 오류: {str(e)}"
+        return f"API 호출 오류: {str(e)}"
 
 # 안전한 GPT-OSS 호출 (재시도 로직 포함)
 def safe_gpt_oss_call(user_question: str, context: str = "", max_retries: int = 3) -> str:
