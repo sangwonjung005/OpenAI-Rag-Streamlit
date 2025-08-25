@@ -53,8 +53,9 @@ def check_gpt_oss_server():
 def call_gpt_oss_api(user_question: str, context: str = "", model_name: str = "gpt-oss-20b") -> str:
     """GPT-OSS API를 호출합니다 (수정된 버전)."""
     try:
-        # 실제 GPT-OSS 서버에 연결 시도
-        gpt_oss_url = "http://localhost:8000/v1/chat/completions"
+        # OpenAI API를 직접 사용 (GPT-OSS 스타일로 포맷팅)
+        if not client:
+            return "API 키가 설정되지 않았습니다."
         
         # 사용자 질문을 명확하게 처리
         if context:
@@ -62,40 +63,18 @@ def call_gpt_oss_api(user_question: str, context: str = "", model_name: str = "g
         else:
             full_prompt = f"Question: {user_question}\n\nPlease provide a detailed and accurate answer to the question above."
         
-        # GPT-OSS 서버에 직접 요청
-        payload = {
-            "model": model_name,
-            "messages": [
+        # OpenAI API 호출
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
                 {"role": "system", "content": "You are a helpful assistant. Answer the user's question directly and accurately. Do not change or modify the user's question."},
                 {"role": "user", "content": full_prompt}
             ],
-            "max_tokens": 4096,
-            "temperature": 0.7
-        }
+            max_tokens=4096,
+            temperature=0.7
+        )
         
-        try:
-            # GPT-OSS 서버 시도
-            response = requests.post(gpt_oss_url, json=payload, timeout=30)
-            if response.status_code == 200:
-                content = response.json()["choices"][0]["message"]["content"].strip()
-            else:
-                raise Exception("GPT-OSS 서버 응답 오류")
-                
-        except:
-            # GPT-OSS 서버가 없으면 OpenAI API 사용 (fallback)
-            if not client:
-                return "API 키가 설정되지 않았습니다."
-            
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant. Answer the user's question directly and accurately. Do not change or modify the user's question."},
-                    {"role": "user", "content": full_prompt}
-                ],
-                max_tokens=4096,
-                temperature=0.7
-            )
-            content = response.choices[0].message.content.strip()
+        content = response.choices[0].message.content.strip()
         
         # GPT-OSS 스타일로 응답 포맷팅 (실제 AI 응답 사용)
         if content and len(content) > 10:
