@@ -20,7 +20,7 @@ def load_api_keys():
     try:
         with open('nocommit_key.txt', 'r', encoding='utf-8') as f:
             lines = f.readlines()
-            keys = {{}}
+            keys = {}
             for line in lines:
                 if '=' in line:
                     key, value = line.strip().split('=', 1)
@@ -28,7 +28,7 @@ def load_api_keys():
             return keys
     except FileNotFoundError:
         st.error("nocommit_key.txt 파일을 찾을 수 없습니다.")
-        return {{}}
+        return {}
 
 # API 키 로드
 api_keys = load_api_keys()
@@ -47,7 +47,7 @@ def check_gpt_oss_server():
         response = requests.get("http://localhost:8000/health", timeout=5)
         return response.status_code == 200
     except:
-        return True  # 원격 앱용: 항상 True 반환
+        return False
 
 # GPT-OSS API 호출 (완전히 새로 작성)
 def call_gpt_oss_api(user_question: str, context: str = "", model_name: str = "gpt-oss-20b") -> str:
@@ -273,3 +273,4 @@ def main():
 # 앱 실행
 if __name__ == "__main__":
     main()
+
