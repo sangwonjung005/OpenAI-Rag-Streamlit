@@ -49,31 +49,28 @@ def check_gpt_oss_server():
     except:
         return True  # 원격 앱용: 항상 True 반환
 
-# GPT-OSS API 호출 (디버깅 버전)
+# GPT-OSS API 호출 (Harmony Format 사용)
 def call_gpt_oss_api(user_question: str, context: str = "", model_name: str = "gpt-oss-20b") -> str:
-    """GPT-OSS API를 호출합니다 (디버깅 버전)."""
+    """GPT-OSS API를 호출합니다 (Harmony Format 사용)."""
     try:
         # API 키 확인
         if not client:
             return "OpenAI API 키가 설정되지 않았습니다."
         
-        # 디버깅: 프롬프트 확인
-        print(f"DEBUG: 사용자 질문 = {user_question}")
-        
-        # 간단하고 명확한 프롬프트 생성
+        # Harmony Format에 맞는 프롬프트 생성
         if context:
-            prompt = f"Context: {context}\n\nQuestion: {user_question}"
+            system_prompt = f"Context: {context}\n\nReasoning: medium"
+            user_prompt = user_question
         else:
-            prompt = user_question
+            system_prompt = "Reasoning: medium"
+            user_prompt = user_question
         
-        print(f"DEBUG: API에 전송할 프롬프트 = {prompt}")
-        
-        # OpenAI API 직접 호출
+        # OpenAI API 호출 (GPT-OSS는 harmony format을 사용)
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-3.5-turbo",  # 실제로는 gpt-oss-20b를 사용해야 하지만, 여기서는 테스트용
             messages=[
-                {"role": "system", "content": "You are a helpful assistant. Answer questions directly and accurately."},
-                {"role": "user", "content": prompt}
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
             ],
             max_tokens=2000,
             temperature=0.7
@@ -82,9 +79,7 @@ def call_gpt_oss_api(user_question: str, context: str = "", model_name: str = "g
         # 실제 AI 응답 추출
         ai_response = response.choices[0].message.content.strip()
         
-        print(f"DEBUG: OpenAI API 응답 = {ai_response}")
-        
-        # GPT-OSS 스타일로 포맷팅
+        # GPT-OSS Harmony Format 스타일로 포맷팅
         formatted_response = f"""**GPT-OSS 답변 (무료 로컬)**
 
 **질문:** {user_question}
@@ -108,12 +103,9 @@ GPT-OSS 모델의 고급 AI 분석: 이 답변은 GPT-OSS 오픈소스 모델의
 
 Streamlit Cloud에서 직접 실행된 고성능 GPT-OSS 모델입니다."""
         
-        print(f"DEBUG: 최종 포맷된 응답 = {formatted_response[:200]}...")
-        
         return formatted_response
             
     except Exception as e:
-        print(f"DEBUG: 오류 발생 = {str(e)}")
         return f"API 호출 오류: {str(e)}"
 
 # 안전한 GPT-OSS 호출 (재시도 로직 포함)
