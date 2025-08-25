@@ -14,20 +14,18 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# API 키 설정
+# API 키 설정 (Streamlit Secrets 사용)
 def load_api_keys():
-    """API 키들을 로드합니다."""
+    """API 키들을 로드합니다 (Streamlit Secrets 사용)."""
     try:
-        with open('nocommit_key.txt', 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            keys = {}
-            for line in lines:
-                if '=' in line:
-                    key, value = line.strip().split('=', 1)
-                    keys[key.strip()] = value.strip()
-            return keys
-    except FileNotFoundError:
-        st.error("nocommit_key.txt 파일을 찾을 수 없습니다.")
+        # Streamlit Cloud Secrets에서 API 키 가져오기
+        if 'OPENAI_API_KEY' in st.secrets:
+            return {'OPENAI_API_KEY': st.secrets['OPENAI_API_KEY']}
+        else:
+            st.error("Streamlit Secrets에서 OPENAI_API_KEY를 찾을 수 없습니다.")
+            return {}
+    except Exception as e:
+        st.error(f"API 키 로드 오류: {e}")
         return {}
 
 # API 키 로드
@@ -49,30 +47,59 @@ def check_gpt_oss_server():
     except:
         return False
 
-# GPT-OSS API 호출 (완전히 새로 작성)
+# GPT-OSS API 호출 (Hugging Face Inference API 사용)
 def call_gpt_oss_api(user_question: str, context: str = "", model_name: str = "gpt-oss-20b") -> str:
-    """GPT-OSS API를 호출합니다 (완전히 새로 작성)."""
+    """GPT-OSS API를 호출합니다 (Hugging Face Inference API 사용)."""
     try:
-        # API 키 확인
-        if not client:
-            return "OpenAI API 키가 설정되지 않았습니다."
+        # Hugging Face Inference API URL
+        API_URL = "https://api-inference.huggingface.co/models/openai/gpt-oss-20b"
         
-        # 간단하고 직접적인 프롬프트
-        prompt = user_question
+        # 헤더 설정 (무료 API 사용)
+        headers = {
+            "Content-Type": "application/json",
+        }
         
-        # OpenAI API 직접 호출
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant. Answer questions directly and accurately."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=1500,
-            temperature=0.7
-        )
+        # 프롬프트 구성
+        if context:
+            full_prompt = f"Context: {context}\n\nQuestion: {user_question}\n\nAnswer:"
+        else:
+            full_prompt = f"Question: {user_question}\n\nAnswer:"
         
-        # 실제 AI 응답 추출
-        ai_response = response.choices[0].message.content.strip()
+        # API 요청 데이터
+        payload = {
+            "inputs": full_prompt,
+            "parameters": {
+                "max_new_tokens": 500,
+                "temperature": 0.7,
+                "do_sample": True
+            }
+        }
+        
+        # Hugging Face API 호출
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
+        
+        if response.status_code == 200:
+            # 응답에서 텍스트 추출
+            result = response.json()
+            if isinstance(result, list) and len(result) > 0:
+                ai_response = result[0].get('generated_text', '').replace(full_prompt, '').strip()
+            else:
+                ai_response = str(result)
+        else:
+            # API 호출 실패시 OpenAI API 사용 (fallback)
+            if client:
+                response = client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "You are a helpful assistant. Answer questions directly and accurately."},
+                        {"role": "user", "content": user_question}
+                    ],
+                    max_tokens=1500,
+                    temperature=0.7
+                )
+                ai_response = response.choices[0].message.content.strip()
+            else:
+                return "API 호출에 실패했습니다."
         
         # GPT-OSS 스타일로 포맷팅 (실제 답변 포함)
         formatted_response = f"""**GPT-OSS 답변 (무료 로컬)**
