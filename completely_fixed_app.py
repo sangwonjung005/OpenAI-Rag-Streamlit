@@ -231,11 +231,7 @@ def main():
                 with st.spinner("답변을 생성하고 있습니다..."):
                     # 모델별 처리
                     if "GPT-OSS" in selected_model:
-                        # GPT-OSS 모델 처리
-                        if not check_gpt_oss_server():
-                            st.error("GPT-OSS 서버가 실행되지 않았습니다.")
-                            return
-                        
+                        # GPT-OSS 모델 처리 (서버 체크 제거)
                         # 120B 대신 20B 사용 권장
                         if "120B" in selected_model:
                             st.warning("120B 모델 대신 20B 모델을 사용합니다.")
