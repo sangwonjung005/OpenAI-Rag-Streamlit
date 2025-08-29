@@ -1,11 +1,18 @@
 import streamlit as st
 from PIL import Image
-import pytesseract
 import json
 import time
 from PyPDF2 import PdfReader
 import io
 import re
+
+# pytesseract 선택적 import
+try:
+    import pytesseract
+    TESSERACT_AVAILABLE = True
+except ImportError:
+    TESSERACT_AVAILABLE = False
+    st.warning("⚠️ pytesseract가 설치되지 않았습니다. 명함 OCR 기능을 사용할 수 없습니다.")
 
 # 페이지 설정
 st.set_page_config(
@@ -75,6 +82,16 @@ def create_pdf_document(pdf_file, pdf_text):
 # 정교한 명함 정보 추출 함수 (API 키 없이도 작동)
 def extract_business_card_info(image):
     """명함에서 정보 추출 - 정교한 버전"""
+    if not TESSERACT_AVAILABLE:
+        return {
+            "name": "OCR 기능을 사용할 수 없습니다",
+            "company": "pytesseract가 설치되지 않았습니다",
+            "position": "명함 OCR 기능을 사용하려면 pytesseract를 설치하세요",
+            "phone": "",
+            "email": "",
+            "address": ""
+        }
+    
     try:
         # 이미지를 그레이스케일로 변환
         gray_image = image.convert('L')
@@ -265,21 +282,25 @@ with tab1:
     st.header("📇 명함 OCR")
     st.write("명함 이미지를 업로드하면 정보를 추출합니다.")
     
-    uploaded_image = st.file_uploader("명함 이미지 업로드", type=['png', 'jpg', 'jpeg'])
-    
-    if uploaded_image is not None:
-        image = Image.open(uploaded_image)
-        st.image(image, caption="업로드된 명함", use_column_width=True)
+    if not TESSERACT_AVAILABLE:
+        st.error("❌ pytesseract가 설치되지 않아 명함 OCR 기능을 사용할 수 없습니다.")
+        st.info("💡 해결 방법: requirements.txt에 pytesseract가 포함되어 있는지 확인하고, packages.txt에 tesseract-ocr이 포함되어 있는지 확인하세요.")
+    else:
+        uploaded_image = st.file_uploader("명함 이미지 업로드", type=['png', 'jpg', 'jpeg'])
         
-        if st.button("🔍 정보 추출", type="primary"):
-            with st.spinner("명함 정보를 추출하고 있습니다..."):
-                card_info = extract_business_card_info(image)
-                
-                # 세션에 저장
-                card_info["timestamp"] = time.strftime("%Y-%m-%d %H:%M:%S")
-                st.session_state.business_cards.append(card_info)
-                
-                st.success("✅ 정보 추출 완료!")
+        if uploaded_image is not None:
+            image = Image.open(uploaded_image)
+            st.image(image, caption="업로드된 명함", use_column_width=True)
+            
+            if st.button("🔍 정보 추출", type="primary"):
+                with st.spinner("명함 정보를 추출하고 있습니다..."):
+                    card_info = extract_business_card_info(image)
+                    
+                    # 세션에 저장
+                    card_info["timestamp"] = time.strftime("%Y-%m-%d %H:%M:%S")
+                    st.session_state.business_cards.append(card_info)
+                    
+                    st.success("✅ 정보 추출 완료!")
                 
                 # 결과 표시
                 st.subheader("📋 추출된 정보")
