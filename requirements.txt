@@ -10,4 +10,12 @@ requests
 beautifulsoup4
 aiohttp
 anthropic
+
 google-generativeai
+
+Pillow
+pytesseract
+google-generativeai
+plotly
+matplotlib
+seaborn
