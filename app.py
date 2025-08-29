@@ -28,6 +28,10 @@ if "pdf_documents" not in st.session_state:
 if "selected_pdf_index" not in st.session_state:
     st.session_state.selected_pdf_index = None
 
+# 다중 PDF 기억 기능을 위한 세션 상태 추가
+if "multiple_pdfs_memory" not in st.session_state:
+    st.session_state.multiple_pdfs_memory = {}  # {pdf_name: {"text": text, "chunks": chunks, "embeddings": embeddings}}
+
 # 대화 메모리 시스템
 if "conversation_memory" not in st.session_state:
     st.session_state.conversation_memory = []
@@ -365,24 +369,132 @@ with tab2:
         st.info("먼저 명함을 업로드해주세요.")
 
 with tab3:
-    st.header("📄 PDF RAG")
-    st.write("PDF 파일을 업로드하고 내용에 대해 질문하세요.")
+    st.header("📄 PDF RAG (다중 PDF 기억 기능)")
+    st.write("여러 PDF 파일을 업로드하고 내용을 기억하여 관련 질문에 답변합니다.")
     
-    # PDF 업로드 및 추가
-    uploaded_pdf = st.file_uploader("PDF 파일 업로드", type=['pdf'])
+    # 다중 PDF 업로드
+    uploaded_pdfs = st.file_uploader("PDF 파일들을 선택하세요 (여러 개 가능)", type=['pdf'], accept_multiple_files=True)
     
-    if uploaded_pdf is not None:
-        if st.button("📖 PDF 추가", type="primary"):
-            with st.spinner("PDF를 읽고 있습니다..."):
-                uploaded_pdf.seek(0)
-                pdf_text = read_pdf(uploaded_pdf)
-                
-                if pdf_text:
-                    uploaded_pdf.seek(0)
-                    pdf_doc = create_pdf_document(uploaded_pdf, pdf_text)
-                    st.session_state.pdf_documents.append(pdf_doc)
-                    st.success(f"✅ PDF '{pdf_doc['name']}' 추가 완료!")
+    if uploaded_pdfs:
+        for uploaded_pdf in uploaded_pdfs:
+            if uploaded_pdf is not None:
+                # 중복 체크
+                if not any(doc["name"] == uploaded_pdf.name for doc in st.session_state.pdf_documents):
+                    with st.spinner(f"PDF '{uploaded_pdf.name}'를 읽고 있습니다..."):
+                        uploaded_pdf.seek(0)
+                        pdf_text = read_pdf(uploaded_pdf)
+                        
+                        if pdf_text:
+                            uploaded_pdf.seek(0)
+                            pdf_doc = create_pdf_document(uploaded_pdf, pdf_text)
+                            st.session_state.pdf_documents.append(pdf_doc)
+                            
+                            # 다중 PDF 기억 기능에 저장
+                            st.session_state.multiple_pdfs_memory[uploaded_pdf.name] = {
+                                "text": pdf_text,
+                                "chunks": pdf_text.split('\n\n'),  # 간단한 청킹
+                                "upload_time": time.strftime("%Y-%m-%d %H:%M:%S"),
+                                "size": len(pdf_text)
+                            }
+                            
+                            st.success(f"✅ PDF '{pdf_doc['name']}' 추가 완료! (기억됨)")
+                else:
+                    st.warning(f"⚠️ PDF '{uploaded_pdf.name}'은 이미 업로드되어 있습니다.")
+    
+    # 다중 PDF 기억 상태 표시
+    if st.session_state.multiple_pdfs_memory:
+        st.subheader("🧠 기억된 PDF 목록")
+        for pdf_name, memory_data in st.session_state.multiple_pdfs_memory.items():
+            col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
+            with col1:
+                st.write(f"📄 {pdf_name}")
+            with col2:
+                st.write(f"📅 {memory_data['upload_time']}")
+            with col3:
+                st.write(f"📊 {memory_data['size']} 문자")
+            with col4:
+                if st.button(f"삭제", key=f"delete_memory_{pdf_name}"):
+                    del st.session_state.multiple_pdfs_memory[pdf_name]
+                    st.session_state.pdf_documents = [doc for doc in st.session_state.pdf_documents if doc['name'] != pdf_name]
+                    st.success(f"✅ {pdf_name} 기억에서 삭제됨!")
                     st.rerun()
+    
+    # 다중 PDF 관련 질문 기능
+    if st.session_state.multiple_pdfs_memory:
+        st.subheader("💬 기억된 PDF들에 대해 질문하기")
+        st.write("업로드된 모든 PDF의 내용을 기억하고 있어서 관련 질문에 답변할 수 있습니다.")
+        
+        pdf_question = st.text_input(
+            "기억된 PDF들에 대해 질문하세요:",
+            placeholder="예: 어떤 PDF에서 AI에 대해 언급했나요? 모든 PDF에서 공통적으로 다루는 주제는?"
+        )
+        
+        if st.button("🤖 답변 생성", key="multi_pdf_qa") and pdf_question:
+            with st.spinner("기억된 PDF들을 분석하고 답변을 생성하고 있습니다..."):
+                # 모든 PDF 내용을 통합
+                all_pdf_content = ""
+                pdf_names = []
+                
+                for pdf_name, memory_data in st.session_state.multiple_pdfs_memory.items():
+                    all_pdf_content += f"\n\n=== {pdf_name} ===\n{memory_data['text'][:1000]}..."
+                    pdf_names.append(pdf_name)
+                
+                # 질문 분석 및 답변 생성
+                if "어떤 PDF" in pdf_question or "어느 PDF" in pdf_question:
+                    # 특정 PDF 찾기
+                    answer = f"**기억된 PDF 분석 결과:**\n\n"
+                    for pdf_name, memory_data in st.session_state.multiple_pdfs_memory.items():
+                        if any(keyword in memory_data['text'].lower() for keyword in pdf_question.lower().split()):
+                            answer += f"📄 **{pdf_name}**: 관련 내용 발견\n"
+                            # 관련 문장 찾기
+                            sentences = memory_data['text'].split('.')
+                            relevant_sentences = [s for s in sentences if any(keyword in s.lower() for keyword in pdf_question.lower().split())]
+                            if relevant_sentences:
+                                answer += f"   - {relevant_sentences[0][:100]}...\n\n"
+                    
+                    if answer == "**기억된 PDF 분석 결과:**\n\n":
+                        answer += "관련 내용을 찾을 수 없습니다."
+                
+                elif "공통" in pdf_question or "모든" in pdf_question:
+                    # 공통 주제 찾기
+                    answer = f"**기억된 PDF 공통 주제 분석:**\n\n"
+                    answer += f"총 {len(pdf_names)}개의 PDF가 기억되고 있습니다:\n"
+                    for pdf_name in pdf_names:
+                        answer += f"• {pdf_name}\n"
+                    
+                    # 간단한 키워드 분석
+                    common_keywords = ["AI", "인공지능", "기술", "시스템", "데이터", "분석", "개발", "프로그램"]
+                    found_keywords = []
+                    
+                    for keyword in common_keywords:
+                        if any(keyword in memory_data['text'] for memory_data in st.session_state.multiple_pdfs_memory.values()):
+                            found_keywords.append(keyword)
+                    
+                    if found_keywords:
+                        answer += f"\n**공통 키워드:** {', '.join(found_keywords)}"
+                    else:
+                        answer += "\n공통 주제를 찾기 어렵습니다."
+                
+                else:
+                    # 일반적인 질문
+                    context = f"기억된 PDF들:\n{all_pdf_content[:2000]}..."
+                    full_question = f"다음 PDF 내용들을 참고하여 답변해주세요:\n\n{context}\n\n질문: {pdf_question}"
+                    
+                    answer = call_ai_api(full_question)
+                
+                # 대화 기록 저장
+                conversation_entry = {
+                    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "question": pdf_question,
+                    "answer": answer,
+                    "type": f"다중 PDF 질문 ({len(pdf_names)}개 PDF)"
+                }
+                st.session_state.conversation_history.append(conversation_entry)
+                
+                st.subheader("🤖 답변")
+                st.write(answer)
+    else:
+        st.info("먼저 PDF 파일들을 업로드해주세요. 업로드된 PDF들은 자동으로 기억됩니다.")
     
     # 업로드된 PDF 목록
     if st.session_state.pdf_documents:
@@ -587,6 +699,7 @@ if st.button("🗑️ 모든 데이터 초기화"):
     st.session_state.pdf_documents = []
     st.session_state.conversation_history = []
     st.session_state.pdf_content = ""
+    st.session_state.multiple_pdfs_memory = {}  # 다중 PDF 기억도 초기화
     if hasattr(st.session_state, 'selected_pdf_index'):
         del st.session_state.selected_pdf_index
     st.success("초기화 완료!")
@@ -630,8 +743,19 @@ with st.sidebar:
     ✅ **명함 OCR**: 텍스트 추출
     ✅ **명함 질문**: 연락처, 이름, 회사, 직책 등
     ✅ **PDF RAG**: 다중 PDF 저장 및 분석
+    ✅ **다중 PDF 기억**: 여러 PDF 내용을 기억하고 관련 질문에 답변
     ✅ **통합 검색**: 모든 PDF에서 키워드 검색
     ✅ **AI 채팅**: 일반적인 대화
     ✅ **대화 기록**: 모든 대화 저장
     ✅ **API 키 불필요**: 완전 로컬 작동
     """)
+    
+    # 다중 PDF 기억 상태 표시
+    if st.session_state.multiple_pdfs_memory:
+        st.markdown("---")
+        st.header("🧠 기억된 PDF")
+        st.write(f"**기억 중인 PDF:** {len(st.session_state.multiple_pdfs_memory)}개")
+        for pdf_name in list(st.session_state.multiple_pdfs_memory.keys())[:3]:  # 최대 3개만 표시
+            st.write(f"• {pdf_name}")
+        if len(st.session_state.multiple_pdfs_memory) > 3:
+            st.write(f"... 외 {len(st.session_state.multiple_pdfs_memory) - 3}개")
